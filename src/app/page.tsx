@@ -1,9 +1,10 @@
+import Welcome from '@/components/Welcome'
 import React from 'react'
 
 const page = () => {
   return (
     <div>
-      
+      <Welcome/>
     </div>
   )
 }

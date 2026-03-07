@@ -26,8 +26,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             throw new Error("User does not exist");
           }
 
-          const isMatch = await bcrypt.compare(password ,user.password);
-
+  const isMatch = await bcrypt.compare(password, user.password as string);  
           if (!isMatch) {
             throw new Error("Incorrect password");
           }
@@ -45,7 +44,38 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       },
     }),
   ],
-  callbacks:{
-    
-  }
+
+  callbacks: {
+    async jwt({ token, user }) {
+      // token me user ka data dalna
+      if (user) {
+        token.id = user.id;
+        token.name = user.name;
+        token.email = user.email;
+        token.role = user.role;
+      }
+
+      return token;
+    },
+
+    async session({ session, token }) {
+      if (session.user) {
+        session.user.id = token.id as string;
+        session.user.name = token.name as string;
+        session.user.email = token.email as string;
+        session.user.role = token.role as string;
+      }
+
+      return session;
+    },
+  },
+  pages:{
+    signIn:"/login",
+    error:"/login"
+  },
+  session:{
+    strategy:"jwt",
+    maxAge:10*24*60*1000
+  },
+  secret:process.env.AUTH_SECRET
 });
